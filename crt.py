@@ -1,5 +1,4 @@
 from os import path
-from typing import List, Any
 
 
 class Chip:
@@ -93,7 +92,7 @@ class EasyFS:
             p = 0x2000 + i * 24
             file = EasyFile()
             file.type = data[p + 16]
-            if file.type in [0x1f, 0xff]:
+            if file.type & 0x1f == 0x1f:
                 break
 
             file.name = data[p:p + 16].decode('ASCII').rstrip(' \0x00')
