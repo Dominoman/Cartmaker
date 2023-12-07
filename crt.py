@@ -2,6 +2,8 @@ from os import path
 
 
 class Chip:
+    TYPE ={0:"ROM", 1:"RAM", 2:"Flash ROM"}
+
     def __init__(self) -> None:
         self.signature = 'CHIP'
         self.total_length = 0x10
@@ -11,8 +13,17 @@ class Chip:
         self.rom_size = 0
         self.data = bytes()
 
+    def __str__(self):
+        return f"<{self.signature}:{self.TYPE[self.type] if self.type in self.TYPE else self.type}:B{self.bank_number}:{hex(self.start_address)}:{hex(self.rom_size)}>"
+
 
 class Crt:
+    TYPE = {0:"Normal cartridge", 1:"Action Replay", 2:"KCS Power Cartridge", 3:"Final Cartridge III", 4:"Simons Basic",
+            5:"Ocean type", 6:"Expert Cartridge", 7:"Fun Play, Power Play", 8:"Super Games", 9:"Atomic Power",
+            10:"Epyx Fastload", 11:"Westermann Learning", 12:"Rex Utility", 13:"Final Cartridge I", 14:"Magic Formel",
+            15:"C64 Game System, System 3", 16:"WarpSpeed", 17:"Dinamic", 18:"Zaxxon, Super Zaxxon (SEGA)",
+            19:"Magic Desk, Domark, HES Australia", 20:"Super Snapshot 5", 21:"Comal-80", 22:"Structured Basic",
+            23:"Ross", 24:"Dela EP64", 25:"Dela EP7x8", 26:"Dela EP256", 27:"Rex EP256", 32:"EasyFlash"}
     chips: list[Chip]
 
     def __init__(self):
@@ -25,6 +36,9 @@ class Crt:
         self.game = False
         self.name = 'EasyFlash'
         self.chips = []
+
+    def __str__(self):
+        return f"<{self.signature}:{self.version_hi}.{self.version_low}:{self.TYPE[self.type] if self.type in self.TYPE else self.type}:{'EXROM' if self.extrom else ''}{'GAME' if self.game else ''}:{self.name}>"
 
     @staticmethod
     def from_bytes(data: bytes) -> 'Crt':

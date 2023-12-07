@@ -11,9 +11,38 @@
    </rect>
   </property>
   <property name="windowTitle">
-   <string>MainWindow</string>
+   <string>CRT Builder</string>
   </property>
-  <widget class="QWidget" name="centralwidget"/>
+  <widget class="QWidget" name="centralwidget">
+   <layout class="QVBoxLayout" name="verticalLayout">
+    <item>
+     <widget class="QTableWidget" name="tableWidget">
+      <column>
+       <property name="text">
+        <string>FileName</string>
+       </property>
+      </column>
+      <column>
+       <property name="text">
+        <string>Length</string>
+       </property>
+      </column>
+      <column>
+       <property name="text">
+        <string>Type</string>
+       </property>
+      </column>
+     </widget>
+    </item>
+    <item>
+     <widget class="QProgressBar" name="progressBar">
+      <property name="value">
+       <number>24</number>
+      </property>
+     </widget>
+    </item>
+   </layout>
+  </widget>
   <widget class="QMenuBar" name="menubar">
    <property name="geometry">
     <rect>
@@ -27,6 +56,10 @@
     <property name="title">
      <string>&amp;File</string>
     </property>
+    <addaction name="actionAdd_file_s"/>
+    <addaction name="actionDelete_file_s"/>
+    <addaction name="actionUp"/>
+    <addaction name="actionDown"/>
     <addaction name="separator"/>
     <addaction name="actionE_xit"/>
    </widget>
@@ -40,18 +73,108 @@
    <addaction name="menu_Tools"/>
   </widget>
   <widget class="QStatusBar" name="statusbar"/>
+  <widget class="QToolBar" name="toolBar">
+   <property name="enabled">
+    <bool>true</bool>
+   </property>
+   <property name="windowTitle">
+    <string>toolBar</string>
+   </property>
+   <property name="movable">
+    <bool>false</bool>
+   </property>
+   <property name="toolButtonStyle">
+    <enum>Qt::ToolButtonIconOnly</enum>
+   </property>
+   <property name="floatable">
+    <bool>false</bool>
+   </property>
+   <attribute name="toolBarArea">
+    <enum>TopToolBarArea</enum>
+   </attribute>
+   <attribute name="toolBarBreak">
+    <bool>false</bool>
+   </attribute>
+   <addaction name="actionAdd_file_s"/>
+   <addaction name="actionDelete_file_s"/>
+   <addaction name="actionUp"/>
+   <addaction name="actionDown"/>
+  </widget>
   <action name="action_Decompile">
    <property name="text">
     <string>&amp;Decompile...</string>
    </property>
   </action>
   <action name="actionE_xit">
+   <property name="icon">
+    <iconset resource="icons.qrc">
+     <normaloff>:/Buttons/icons/door_open.png</normaloff>:/Buttons/icons/door_open.png</iconset>
+   </property>
    <property name="text">
     <string>E&amp;xit</string>
    </property>
   </action>
+  <action name="actionAdd_file_s">
+   <property name="icon">
+    <iconset resource="icons.qrc">
+     <normaloff>:/Buttons/add</normaloff>:/Buttons/add</iconset>
+   </property>
+   <property name="text">
+    <string>Add file(s)...</string>
+   </property>
+   <property name="menuRole">
+    <enum>QAction::NoRole</enum>
+   </property>
+  </action>
+  <action name="actionDelete_file_s">
+   <property name="enabled">
+    <bool>false</bool>
+   </property>
+   <property name="icon">
+    <iconset resource="icons.qrc">
+     <normaloff>:/Buttons/delete</normaloff>:/Buttons/delete</iconset>
+   </property>
+   <property name="text">
+    <string>Delete file(s)</string>
+   </property>
+   <property name="menuRole">
+    <enum>QAction::NoRole</enum>
+   </property>
+  </action>
+  <action name="actionUp">
+   <property name="enabled">
+    <bool>false</bool>
+   </property>
+   <property name="icon">
+    <iconset resource="icons.qrc">
+     <normaloff>:/Buttons/up</normaloff>:/Buttons/up</iconset>
+   </property>
+   <property name="text">
+    <string>Up</string>
+   </property>
+   <property name="menuRole">
+    <enum>QAction::NoRole</enum>
+   </property>
+  </action>
+  <action name="actionDown">
+   <property name="enabled">
+    <bool>false</bool>
+   </property>
+   <property name="icon">
+    <iconset resource="icons.qrc">
+     <normaloff>:/Buttons/down</normaloff>:/Buttons/down</iconset>
+   </property>
+   <property name="text">
+    <string>Down</string>
+   </property>
+   <property name="menuRole">
+    <enum>QAction::NoRole</enum>
+   </property>
+  </action>
  </widget>
- <resources/>
+ <resources>
+  <include location="icons.qrc"/>
+ </resources>
  <connections>
   <connection>
    <sender>actionE_xit</sender>
