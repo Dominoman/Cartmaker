@@ -16,10 +16,9 @@ from PySide6.QtGui import (QAction, QBrush, QColor, QConicalGradient,
     QIcon, QImage, QKeySequence, QLinearGradient,
     QPainter, QPalette, QPixmap, QRadialGradient,
     QTransform)
-from PySide6.QtWidgets import (QApplication, QHeaderView, QMainWindow, QMenu,
-    QMenuBar, QProgressBar, QSizePolicy, QStatusBar,
-    QTableWidget, QTableWidgetItem, QToolBar, QVBoxLayout,
-    QWidget)
+from PySide6.QtWidgets import (QAbstractItemView, QApplication, QHeaderView, QMainWindow,
+    QMenu, QMenuBar, QSizePolicy, QStatusBar,
+    QTableView, QToolBar, QVBoxLayout, QWidget)
 import icons_rc
 
 class Ui_MainWindow(object):
@@ -65,24 +64,20 @@ class Ui_MainWindow(object):
         self.centralwidget.setObjectName(u"centralwidget")
         self.verticalLayout = QVBoxLayout(self.centralwidget)
         self.verticalLayout.setObjectName(u"verticalLayout")
-        self.tableWidget = QTableWidget(self.centralwidget)
-        if (self.tableWidget.columnCount() < 3):
-            self.tableWidget.setColumnCount(3)
-        __qtablewidgetitem = QTableWidgetItem()
-        self.tableWidget.setHorizontalHeaderItem(0, __qtablewidgetitem)
-        __qtablewidgetitem1 = QTableWidgetItem()
-        self.tableWidget.setHorizontalHeaderItem(1, __qtablewidgetitem1)
-        __qtablewidgetitem2 = QTableWidgetItem()
-        self.tableWidget.setHorizontalHeaderItem(2, __qtablewidgetitem2)
-        self.tableWidget.setObjectName(u"tableWidget")
+        self.tableView = QTableView(self.centralwidget)
+        self.tableView.setObjectName(u"tableView")
+        self.tableView.setSelectionMode(QAbstractItemView.ContiguousSelection)
+        self.tableView.setSelectionBehavior(QAbstractItemView.SelectRows)
+        self.tableView.horizontalHeader().setCascadingSectionResizes(True)
+        self.tableView.horizontalHeader().setStretchLastSection(True)
+        self.tableView.verticalHeader().setVisible(False)
 
-        self.verticalLayout.addWidget(self.tableWidget)
+        self.verticalLayout.addWidget(self.tableView)
 
-        self.progressBar = QProgressBar(self.centralwidget)
-        self.progressBar.setObjectName(u"progressBar")
-        self.progressBar.setValue(24)
+        self.widget = QWidget(self.centralwidget)
+        self.widget.setObjectName(u"widget")
 
-        self.verticalLayout.addWidget(self.progressBar)
+        self.verticalLayout.addWidget(self.widget)
 
         MainWindow.setCentralWidget(self.centralwidget)
         self.menubar = QMenuBar(MainWindow)
@@ -132,12 +127,6 @@ class Ui_MainWindow(object):
         self.actionDelete_file_s.setText(QCoreApplication.translate("MainWindow", u"Delete file(s)", None))
         self.actionUp.setText(QCoreApplication.translate("MainWindow", u"Up", None))
         self.actionDown.setText(QCoreApplication.translate("MainWindow", u"Down", None))
-        ___qtablewidgetitem = self.tableWidget.horizontalHeaderItem(0)
-        ___qtablewidgetitem.setText(QCoreApplication.translate("MainWindow", u"FileName", None));
-        ___qtablewidgetitem1 = self.tableWidget.horizontalHeaderItem(1)
-        ___qtablewidgetitem1.setText(QCoreApplication.translate("MainWindow", u"Length", None));
-        ___qtablewidgetitem2 = self.tableWidget.horizontalHeaderItem(2)
-        ___qtablewidgetitem2.setText(QCoreApplication.translate("MainWindow", u"Type", None));
         self.menu_File.setTitle(QCoreApplication.translate("MainWindow", u"&File", None))
         self.menu_Tools.setTitle(QCoreApplication.translate("MainWindow", u"&Tools", None))
         self.toolBar.setWindowTitle(QCoreApplication.translate("MainWindow", u"toolBar", None))

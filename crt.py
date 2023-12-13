@@ -1,8 +1,12 @@
+import os
 from os import path
+
+from PySide6.QtCore import QAbstractTableModel, QModelIndex, Qt, QAbstractItemModel
+from PySide6.QtWidgets import QMessageBox
 
 
 class Chip:
-    TYPE ={0:"ROM", 1:"RAM", 2:"Flash ROM"}
+    TYPE = {0: "ROM", 1: "RAM", 2: "Flash ROM"}
 
     def __init__(self) -> None:
         self.signature = 'CHIP'
@@ -18,12 +22,14 @@ class Chip:
 
 
 class Crt:
-    TYPE = {0:"Normal cartridge", 1:"Action Replay", 2:"KCS Power Cartridge", 3:"Final Cartridge III", 4:"Simons Basic",
-            5:"Ocean type", 6:"Expert Cartridge", 7:"Fun Play, Power Play", 8:"Super Games", 9:"Atomic Power",
-            10:"Epyx Fastload", 11:"Westermann Learning", 12:"Rex Utility", 13:"Final Cartridge I", 14:"Magic Formel",
-            15:"C64 Game System, System 3", 16:"WarpSpeed", 17:"Dinamic", 18:"Zaxxon, Super Zaxxon (SEGA)",
-            19:"Magic Desk, Domark, HES Australia", 20:"Super Snapshot 5", 21:"Comal-80", 22:"Structured Basic",
-            23:"Ross", 24:"Dela EP64", 25:"Dela EP7x8", 26:"Dela EP256", 27:"Rex EP256", 32:"EasyFlash"}
+    TYPE = {0: "Normal cartridge", 1: "Action Replay", 2: "KCS Power Cartridge", 3: "Final Cartridge III",
+            4: "Simons Basic",
+            5: "Ocean type", 6: "Expert Cartridge", 7: "Fun Play, Power Play", 8: "Super Games", 9: "Atomic Power",
+            10: "Epyx Fastload", 11: "Westermann Learning", 12: "Rex Utility", 13: "Final Cartridge I",
+            14: "Magic Formel",
+            15: "C64 Game System, System 3", 16: "WarpSpeed", 17: "Dinamic", 18: "Zaxxon, Super Zaxxon (SEGA)",
+            19: "Magic Desk, Domark, HES Australia", 20: "Super Snapshot 5", 21: "Comal-80", 22: "Structured Basic",
+            23: "Ross", 24: "Dela EP64", 25: "Dela EP7x8", 26: "Dela EP256", 27: "Rex EP256", 32: "EasyFlash"}
     chips: list[Chip]
 
     def __init__(self):
@@ -73,27 +79,81 @@ class Crt:
 
 
 class EasyFile:
-    def __init__(self):
-        self.name = ""
+    def __init__(self, file_name: str = ""):
+        self.file_path = file_name
+        self.name = os.path.splitext(os.path.basename(file_name))[0]
         self.type = 0x1f
         self.bank = 0
         self.offset = 0
-        self.size = 0
-        self.data = bytes()
+
+        if not file_name:
+            self.data = bytes()
+            self.size = 0
+        else:
+            with open(file_name, "rb") as f:
+                self.data = f.read()
+                self.size = len(self.data)
 
     def __repr__(self):
         e = self.offset + self.size
         return f"{self.name}[{self.bank}:{hex(self.offset)}-{self.bank + e // 0x4000}:{hex(e % 0x4000)}=>{self.bank * 0x4000 + self.offset}]"
 
 
-class EasyFS:
+class EasyFS(QAbstractTableModel):
     files: list[EasyFile]
 
-    def __init__(self) -> None:
+    def __init__(self, parent=None) -> None:
+        super().__init__(parent)
         self.boot = bytes()
         self.easyapi = bytes()
         self.startup = bytes()
         self.files = []
+
+    def data(self, index: QModelIndex, role=Qt.ItemDataRole.DisplayRole):
+        if role == Qt.ItemDataRole.DisplayRole:
+            file = self.files[index.row()]
+            if index.column() == 0:
+                return file.name
+            if index.column() == 1:
+                return file.size
+            if index.column() == 2:
+                return "PRG"
+        if role == Qt.ItemDataRole.TextAlignmentRole and index.column() == 1:
+            return Qt.AlignmentFlag.AlignRight | Qt.AlignmentFlag.AlignVCenter
+        return None
+
+    def setData(self, index: QModelIndex, value, role=Qt.ItemDataRole.DisplayRole):
+        if role == Qt.ItemDataRole.EditRole:
+            if value == "":
+                QMessageBox.warning(self.parent(), "Error", "Empty filename!")
+                return False
+            if len(value) > 16:
+                QMessageBox.warning(self.parent(), "Error", "Too long filename!")
+                return False
+            self.files[index.row()].name = value
+            return True
+        return False
+
+    def flags(self, index: QModelIndex) -> Qt.ItemFlag:
+        if index.column() == 0:
+            return super().flags(index) | Qt.ItemFlag.ItemIsEditable
+        return super().flags(index)
+
+    def headerData(self, section: int, orientation: Qt.Orientation, role=Qt.ItemDataRole.DisplayRole):
+        if role == Qt.ItemDataRole.DisplayRole and orientation == Qt.Orientation.Horizontal:
+            if section == 0:
+                return "File name"
+            if section == 1:
+                return "File size"
+            if section == 2:
+                return "File type"
+        return None
+
+    def columnCount(self, parent=QModelIndex()) -> int:
+        return 3
+
+    def rowCount(self, parent=QModelIndex) -> int:
+        return len(self.files)
 
     @staticmethod
     def from_bytes(data: bytes) -> 'EasyFS':
@@ -128,7 +188,7 @@ class EasyFS:
             fo.write(self.easyapi)
 
         with open(path.join(export_path, "startup.prg"), "wb") as fo:
-            fo.write(0xbb00.to_bytes(2, "little"))
+            fo.write(0xfb00.to_bytes(2, "little"))
             fo.write(self.startup)
 
         for file in self.files:
