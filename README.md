@@ -7,4 +7,5 @@
 - File név módosítás
 - Törlés
 - Mozgatás
-- ...
+- C64 font készlét
+- EFCRT betöltés

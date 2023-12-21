@@ -1,7 +1,8 @@
 import os
+import petscii_codecs
 from os import path
 
-from PySide6.QtCore import QAbstractTableModel, QModelIndex, Qt, QAbstractItemModel
+from PySide6.QtCore import QAbstractTableModel, QModelIndex, Qt
 from PySide6.QtWidgets import QMessageBox
 
 
@@ -108,6 +109,57 @@ class EasyFS(QAbstractTableModel):
         self.easyapi = bytes()
         self.startup = bytes()
         self.files = []
+        self.modified = False
+
+    def clear(self) -> None:
+        self.boot = bytes()
+        self.easyapi = bytes()
+        self.startup = bytes()
+        self.files = []
+        self.modified = False
+
+    def add_file(self, file: EasyFile) -> None:
+        self.files.append(file)
+        self.layoutChanged.emit()
+
+    def from_bytes(self, data: bytes) -> None:
+        self.boot = data[:0x2000]
+        self.easyapi = data[0x2000 + 0x1800:0x2000 + 0x1b00]
+        self.startup = data[0x2000 + 0x1b00:0x2000 + 0x2000]
+        self.files = []
+        for i in range(255):
+            p = 0x2000 + i * 24
+            file = EasyFile()
+            file.type = data[p + 16]
+            if file.type & 0x1f == 0x1f:
+                break
+
+            file.name = data[p:p + 16].rstrip(b'\0x00').decode('petscii_c64en_lc')
+            file.bank = data[p + 17]
+            file.offset = int.from_bytes(data[p + 19:p + 21], "little")
+            file.size = int.from_bytes(data[p + 21:p + 24], "little")
+            file_start = file.bank * 0x4000 + file.offset
+            file.data = data[file_start:file_start + file.size]
+            self.files.append(file)
+        self.modified = False
+        self.layoutChanged.emit()
+
+    def export(self, export_path: str) -> None:
+        with open(path.join(export_path, "boot.prg"), "wb") as fo:
+            fo.write(0x8000.to_bytes(2, "little"))
+            fo.write(self.boot)
+
+        with open(path.join(export_path, "easyapi.prg"), "wb") as fo:
+            fo.write(0xb800.to_bytes(2, "little"))
+            fo.write(self.easyapi)
+
+        with open(path.join(export_path, "startup.prg"), "wb") as fo:
+            fo.write(0xfb00.to_bytes(2, "little"))
+            fo.write(self.startup)
+
+        for file in self.files:
+            with open(path.join(export_path, f"{file.name}.prg"), "wb") as fo:
+                fo.write(file.data)
 
     def data(self, index: QModelIndex, role=Qt.ItemDataRole.DisplayRole):
         if role == Qt.ItemDataRole.DisplayRole:
@@ -131,6 +183,7 @@ class EasyFS(QAbstractTableModel):
                 QMessageBox.warning(self.parent(), "Error", "Too long filename!")
                 return False
             self.files[index.row()].name = value
+            self.modified = True
             return True
         return False
 
@@ -154,43 +207,3 @@ class EasyFS(QAbstractTableModel):
 
     def rowCount(self, parent=QModelIndex) -> int:
         return len(self.files)
-
-    @staticmethod
-    def from_bytes(data: bytes) -> 'EasyFS':
-        fs = EasyFS()
-        fs.boot = data[:0x2000]
-        fs.easyapi = data[0x2000 + 0x1800:0x2000 + 0x1b00]
-        fs.startup = data[0x2000 + 0x1b00:0x2000 + 0x2000]
-        fs.files = []
-        for i in range(255):
-            p = 0x2000 + i * 24
-            file = EasyFile()
-            file.type = data[p + 16]
-            if file.type & 0x1f == 0x1f:
-                break
-
-            file.name = data[p:p + 16].decode('ASCII').rstrip(' \0x00')
-            file.bank = data[p + 17]
-            file.offset = int.from_bytes(data[p + 19:p + 21], "little")
-            file.size = int.from_bytes(data[p + 21:p + 24], "little")
-            file_start = file.bank * 0x4000 + file.offset
-            file.data = data[file_start:file_start + file.size]
-            fs.files.append(file)
-        return fs
-
-    def export(self, export_path: str) -> None:
-        with open(path.join(export_path, "boot.prg"), "wb") as fo:
-            fo.write(0x8000.to_bytes(2, "little"))
-            fo.write(self.boot)
-
-        with open(path.join(export_path, "easyapi.prg"), "wb") as fo:
-            fo.write(0xb800.to_bytes(2, "little"))
-            fo.write(self.easyapi)
-
-        with open(path.join(export_path, "startup.prg"), "wb") as fo:
-            fo.write(0xfb00.to_bytes(2, "little"))
-            fo.write(self.startup)
-
-        for file in self.files:
-            with open(path.join(export_path, f"{file.name}.prg"), "wb") as fo:
-                fo.write(file.data)

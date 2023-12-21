@@ -52,6 +52,7 @@
     <property name="title">
      <string>&amp;File</string>
     </property>
+    <addaction name="action_Open_crt"/>
     <addaction name="actionAdd_file_s"/>
     <addaction name="actionDelete_file_s"/>
     <addaction name="actionUp"/>
@@ -59,14 +60,7 @@
     <addaction name="separator"/>
     <addaction name="actionE_xit"/>
    </widget>
-   <widget class="QMenu" name="menu_Tools">
-    <property name="title">
-     <string>&amp;Tools</string>
-    </property>
-    <addaction name="action_Decompile"/>
-   </widget>
    <addaction name="menu_File"/>
-   <addaction name="menu_Tools"/>
   </widget>
   <widget class="QStatusBar" name="statusbar"/>
   <widget class="QToolBar" name="toolBar">
@@ -96,15 +90,10 @@
    <addaction name="actionUp"/>
    <addaction name="actionDown"/>
   </widget>
-  <action name="action_Decompile">
-   <property name="text">
-    <string>&amp;Decompile...</string>
-   </property>
-  </action>
   <action name="actionE_xit">
    <property name="icon">
     <iconset resource="icons.qrc">
-     <normaloff>:/Buttons/icons/door_open.png</normaloff>:/Buttons/icons/door_open.png</iconset>
+     <normaloff>:/Buttons/door</normaloff>:/Buttons/door</iconset>
    </property>
    <property name="text">
     <string>E&amp;xit</string>
@@ -117,6 +106,9 @@
    </property>
    <property name="text">
     <string>Add file(s)...</string>
+   </property>
+   <property name="shortcut">
+    <string>Ctrl+A</string>
    </property>
    <property name="menuRole">
     <enum>QAction::NoRole</enum>
@@ -133,6 +125,9 @@
    <property name="text">
     <string>Delete file(s)</string>
    </property>
+   <property name="shortcut">
+    <string>Ctrl+D</string>
+   </property>
    <property name="menuRole">
     <enum>QAction::NoRole</enum>
    </property>
@@ -147,6 +142,9 @@
    </property>
    <property name="text">
     <string>Up</string>
+   </property>
+   <property name="shortcut">
+    <string>Ctrl+Up</string>
    </property>
    <property name="menuRole">
     <enum>QAction::NoRole</enum>
@@ -163,8 +161,23 @@
    <property name="text">
     <string>Down</string>
    </property>
+   <property name="shortcut">
+    <string>Ctrl+Down</string>
+   </property>
    <property name="menuRole">
     <enum>QAction::NoRole</enum>
+   </property>
+  </action>
+  <action name="action_Open_crt">
+   <property name="icon">
+    <iconset resource="icons.qrc">
+     <normaloff>:/Buttons/folder</normaloff>:/Buttons/folder</iconset>
+   </property>
+   <property name="text">
+    <string>&amp;Open crt...</string>
+   </property>
+   <property name="shortcut">
+    <string>Ctrl+O</string>
    </property>
   </action>
  </widget>
